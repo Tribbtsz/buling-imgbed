@@ -230,7 +230,13 @@ export const imageController = {
                     continue
                 }
 
-                if (!isValidImageType(value.type)) {
+                // 从文件名获取扩展名，用于判断文件类型
+                const extension = value.name.split('.').pop().toLowerCase()
+                const mimeType = value.type === 'application/octet-stream' 
+                    ? getContentTypeFromExtension(extension)  // 如果是 octet-stream，根据扩展名判断
+                    : value.type
+
+                if (!isValidImageType(mimeType)) {
                     return c.json({ 
                         success: false, 
                         message: '请选择有效的图片文件' 
@@ -253,7 +259,6 @@ export const imageController = {
                     String(now.getMinutes()).padStart(2, '0') +
                     String(now.getSeconds()).padStart(2, '0')
                 
-                const extension = value.name.split('.').pop()
                 const filename = `${timestamp}-${Math.random().toString(36).substring(7)}.${extension}`
 
                 // 保存到数据库
@@ -261,9 +266,9 @@ export const imageController = {
                     'INSERT INTO images (user_id, filename) VALUES (?, ?)'
                 ).bind(1, filename).run()
 
-                // 上传到 R2
+                // 上传到 R2，使用正确的 contentType
                 await c.env.MY_BUCKET.put(filename, value.stream(), {
-                    httpMetadata: { contentType: value.type }
+                    httpMetadata: { contentType: mimeType }
                 })
 
                 files.push({
