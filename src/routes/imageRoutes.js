@@ -9,7 +9,7 @@ imageRoutes.post('/upload', (c, next) => authMiddleware(c.env)(c, next), imageCo
 imageRoutes.delete('/delete', (c, next) => authMiddleware(c.env)(c, next), imageController.deleteImages)
 imageRoutes.post('/list', (c, next) => authMiddleware(c.env)(c, next), imageController.listImages)
 
-// 无需认证的上传路由
+// 新增：无需认证的上传路由
 imageRoutes.post('/upload-with-key', imageController.uploadImageWithKey)
 
 export { imageRoutes } 
