@@ -220,6 +220,16 @@ export const imageController = {
 
             // 遍历所有文件
             for (const [_, value] of formData.entries()) {
+                // 添加调试日志
+                console.log('File type:', value.type)
+                console.log('File name:', value.name)
+                console.log('File size:', value.size)
+
+                // 检查是否为文件
+                if (!(value instanceof File)) {
+                    continue
+                }
+
                 if (!isValidImageType(value.type)) {
                     return c.json({ 
                         success: false, 
@@ -259,6 +269,14 @@ export const imageController = {
                 files.push({
                     imgUrl: `https://r2.example.com/${filename}`
                 })
+            }
+
+            // 如果没有有效文件
+            if (files.length === 0) {
+                return c.json({ 
+                    success: false, 
+                    message: '请选择有效的图片文件' 
+                }, 400)
             }
 
             return c.json({
