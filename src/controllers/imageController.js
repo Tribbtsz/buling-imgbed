@@ -202,5 +202,76 @@ export const imageController = {
                 message: error.message
             }, 500);
         }
+    },
+
+    async uploadImageWithKey(c) {
+        try {
+            // 验证 key
+            const key = c.req.query('key')
+            if (!key || key !== c.env.NO_AUTH_UPLOAD_KEY) {
+                return c.json({ 
+                    success: false, 
+                    message: '无效的密钥'
+                }, 401)
+            }
+
+            const formData = await c.req.formData()
+            const files = []
+
+            // 遍历所有文件
+            for (const [_, value] of formData.entries()) {
+                if (!isValidImageType(value.type)) {
+                    return c.json({ 
+                        success: false, 
+                        message: '请选择有效的图片文件' 
+                    }, 400)
+                }
+
+                if (value.size > 10 * 1024 * 1024) {
+                    return c.json({ 
+                        success: false, 
+                        message: '文件大小不能超过10MB' 
+                    }, 400)
+                }
+
+                // 生成时间戳格式的文件名
+                const now = new Date()
+                const timestamp = now.getFullYear() +
+                    String(now.getMonth() + 1).padStart(2, '0') +
+                    String(now.getDate()).padStart(2, '0') +
+                    String(now.getHours()).padStart(2, '0') +
+                    String(now.getMinutes()).padStart(2, '0') +
+                    String(now.getSeconds()).padStart(2, '0')
+                
+                const extension = value.name.split('.').pop()
+                const filename = `${timestamp}-${Math.random().toString(36).substring(7)}.${extension}`
+
+                // 保存到数据库
+                await c.env.MY_DB.prepare(
+                    'INSERT INTO images (user_id, filename) VALUES (?, ?)'
+                ).bind(1, filename).run()
+
+                // 上传到 R2
+                await c.env.MY_BUCKET.put(filename, value.stream(), {
+                    httpMetadata: { contentType: value.type }
+                })
+
+                files.push({
+                    imgUrl: `https://r2.example.com/${filename}`
+                })
+            }
+
+            return c.json({
+                success: true,
+                message: '图片上传成功',
+                fullResult: files
+            })
+
+        } catch (error) {
+            return c.json({
+                success: false,
+                message: `上传失败: ${error.message}`
+            }, 500)
+        }
     }
 } 
