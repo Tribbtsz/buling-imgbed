@@ -82,8 +82,10 @@ jobs:
       
       - name: 5.Update wrangler.toml with secrets
         run: |
-          sed -i "s/JWT_SECRET = \".*\"/JWT_SECRET = \"${{ secrets.JWT_SECRET }}\"/" wrangler.toml
-          sed -i "s/TG_BOT_TOKEN = \".*\"/TG_BOT_TOKEN = \"${{ secrets.TG_BOT_TOKEN }}\"/" wrangler.toml
+          sed -i 's#JWT_SECRET = ".*"#JWT_SECRET = "'"${{ secrets.JWT_SECRET }}"'"#' wrangler.toml
+          sed -i 's#TG_BOT_TOKEN = ".*"#TG_BOT_TOKEN = "'"${{ secrets.TG_BOT_TOKEN }}"'"#' wrangler.toml
+          sed -i 's#NO_AUTH_UPLOAD_KEY = ".*"#NO_AUTH_UPLOAD_KEY = "'"${{ secrets.NO_AUTH_UPLOAD_KEY }}"'"#' wrangler.toml
+          sed -i 's#R2_URL = ".*"#R2_URL = "'"${{ secrets.R2_URL }}"'"#' wrangler.toml
           echo "Configuration updated successfully"
 
       - name: 6.Deploy to Cloudflare Workers
