@@ -11,5 +11,7 @@ imageRoutes.delete('/delete', imageController.deleteImages)
 // imageRoutes.get('/listr2', imageController.listR2Images)
 imageRoutes.post('/list', imageController.listImages)
 
+// 新增：无需认证的上传路由
+imageRoutes.post('/upload-with-key', imageController.uploadImageWithKey)
 
 export { imageRoutes } 
