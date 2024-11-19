@@ -19,6 +19,6 @@ bucket_name = "buling-imgbed-r2"
 [vars]
 JWT_SECRET = "随机uuid生成" 
 TG_BOT_TOKEN = "TG机器人token"
-
+NO_AUTH_UPLOAD_KEY = "随机uuid生成"
 
  
