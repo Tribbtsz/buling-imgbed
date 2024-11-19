@@ -1,4 +1,4 @@
-import { isValidImageType } from '../utils/imageUtils';
+import { isValidImageType, getContentTypeFromExtension } from '../utils/imageUtils';
 
 export const imageController = {
     async uploadImage(c) {
@@ -81,7 +81,7 @@ export const imageController = {
                 }, 500);
             }
 
-            // R2 删除成功后，再从数据库中删除记录
+            // R2 ���除成功后，再从数据库中删除记录
             const stmt = await c.env.MY_DB.prepare(
                 'DELETE FROM images WHERE filename IN (' + files.map(() => '?').join(',') + ') AND user_id = ?'
             ).bind(...files, userId).run();
@@ -291,6 +291,7 @@ export const imageController = {
             })
 
         } catch (error) {
+            console.error('Upload error:', error); // 添加错误日志
             return c.json({
                 success: false,
                 message: `上传失败: ${error.message}`
