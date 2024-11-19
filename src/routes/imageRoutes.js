@@ -4,12 +4,10 @@ import { authMiddleware } from '../middlewares/authMiddleware'
 
 const imageRoutes = new Hono()
 
-// 所有图片操作路由都需要认证
-imageRoutes.use('*', (c, next) => authMiddleware(c.env)(c, next))
-imageRoutes.post('/upload', imageController.uploadImage)
-imageRoutes.delete('/delete', imageController.deleteImages)
-// imageRoutes.get('/listr2', imageController.listR2Images)
-imageRoutes.post('/list', imageController.listImages)
+// 修改这里：只对需要认证的路由使用中间件
+imageRoutes.post('/upload', (c, next) => authMiddleware(c.env)(c, next), imageController.uploadImage)
+imageRoutes.delete('/delete', (c, next) => authMiddleware(c.env)(c, next), imageController.deleteImages)
+imageRoutes.post('/list', (c, next) => authMiddleware(c.env)(c, next), imageController.listImages)
 
 // 新增：无需认证的上传路由
 imageRoutes.post('/upload-with-key', imageController.uploadImageWithKey)
